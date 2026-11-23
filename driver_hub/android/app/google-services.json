@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "1085139734495",
+    "project_id": "driverhub-afdbc",
+    "storage_bucket": "driverhub-afdbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085139734495:android:3f60500930c9b70cd43e6a",
+        "android_client_info": {
+          "package_name": "com.driverhub.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085139734495-p04j9d2ae30glksjlv6pp4f122dt4v7r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.driverhub.app",
+            "certificate_hash": "75431133f1f42125482a94dee98d961299042579"
+          }
+        },
+        {
+          "client_id": "1085139734495-q9emnq1uekmaq27ga2tfmfefspkh43k3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjomt555buhJK1woLgjHNOiv0UAGJ9eVI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1085139734495-q9emnq1uekmaq27ga2tfmfefspkh43k3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085139734495:android:d0f141574269dadcd43e6a",
+        "android_client_info": {
+          "package_name": "com.example.driver_hub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085139734495-q9emnq1uekmaq27ga2tfmfefspkh43k3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjomt555buhJK1woLgjHNOiv0UAGJ9eVI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1085139734495-q9emnq1uekmaq27ga2tfmfefspkh43k3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

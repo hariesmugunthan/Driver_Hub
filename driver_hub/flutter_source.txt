@@ -1,0 +1,2274 @@
+
+==================================================
+FILE: lib/models/admin_auth_model.dart
+==================================================
+class AdminAuthModel {
+  String adminId;
+  String name;
+  String email;
+
+  AdminAuthModel({
+    required this.adminId,
+    required this.name,
+    required this.email,
+  });
+
+  factory AdminAuthModel.fromJson(Map<String, dynamic> json) {
+    return AdminAuthModel(
+      adminId: json['admin_id'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+    );
+  }
+}
+
+==================================================
+FILE: lib/models/admin_registration_model.dart
+==================================================
+class AdminRegistrationModel {
+  String name;
+  String email;
+  String masterPassword;
+
+  AdminRegistrationModel({
+    required this.name,
+    required this.email,
+    required this.masterPassword,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'email': email,
+      'master_password': masterPassword,
+    };
+  }
+}
+
+==================================================
+FILE: lib/models/driver_id_model.dart
+==================================================
+class DriverIdModel {
+  String driverId;
+
+  DriverIdModel({
+    required this.driverId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'driver_id': driverId,
+    };
+  }
+}
+
+==================================================
+FILE: lib/models/driver_model.dart
+==================================================
+class DriverModel {
+  String driverId;
+  String name;
+  String mobileNumber;
+  String email;
+  DateTime? dateOfBirth;
+  String? gender;
+  String? address;
+  String licenseNumber;
+  DateTime licenseExpiryDate;
+  bool isAvailable;
+
+  DriverModel({
+    this.driverId = '',
+    required this.name,
+    required this.mobileNumber,
+    required this.email,
+    this.dateOfBirth,
+    this.gender,
+    this.address,
+    required this.licenseNumber,
+    required this.licenseExpiryDate,
+    this.isAvailable = true,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'driver_id': driverId,
+      'name': name,
+      'mobile_number': mobileNumber,
+      'email': email,
+      'date_of_birth': dateOfBirth?.toIso8601String(),
+      'gender': gender,
+      'address': address,
+      'license_number': licenseNumber,
+      'license_expiry_date':
+      licenseExpiryDate.toIso8601String(),
+      'is_available': isAvailable,
+    };
+  }
+
+  factory DriverModel.fromJson(
+      Map<String, dynamic> json) {
+    return DriverModel(
+      driverId: json['driver_id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      mobileNumber:
+      json['mobile_number'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      dateOfBirth: json['date_of_birth'] != null
+          ? DateTime.parse(
+        json['date_of_birth'] as String,
+      )
+          : null,
+      gender: json['gender'] as String?,
+      address: json['address'] as String?,
+      licenseNumber:
+      json['license_number'] as String? ?? '',
+      licenseExpiryDate: DateTime.parse(
+        json['license_expiry_date'] as String,
+      ),
+      isAvailable:
+      json['is_available'] as bool? ?? true,
+    );
+  }
+}
+
+==================================================
+FILE: lib/models/vehicle_id_model.dart
+==================================================
+class VehicleIdModel {
+  String vehicleId;
+
+  VehicleIdModel({
+    required this.vehicleId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vehicle_id': vehicleId,
+    };
+  }
+
+  factory VehicleIdModel.fromJson(
+      Map<String, dynamic> json) {
+    return VehicleIdModel(
+      vehicleId: json['vehicle_id'] as String? ?? '',
+    );
+  }
+}
+
+==================================================
+FILE: lib/models/vehicle_model.dart
+==================================================
+class VehicleModel {
+  String vehicleId;
+  String registrationNumber;
+  String vehicleType;
+  String brand;
+  String model;
+  String fuelType;
+  int seatingCapacity;
+  bool isAvailable;
+
+  VehicleModel({
+    this.vehicleId = '',
+    required this.registrationNumber,
+    required this.vehicleType,
+    required this.brand,
+    required this.model,
+    required this.fuelType,
+    required this.seatingCapacity,
+    this.isAvailable = true,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vehicle_id': vehicleId,
+      'registration_number': registrationNumber,
+      'vehicle_type': vehicleType,
+      'brand': brand,
+      'model': model,
+      'fuel_type': fuelType,
+      'seating_capacity': seatingCapacity,
+      'is_available': isAvailable,
+    };
+  }
+
+  factory VehicleModel.fromJson(
+      Map<String, dynamic> json) {
+    return VehicleModel(
+      vehicleId: json['vehicle_id'] as String? ?? '',
+      registrationNumber:
+      json['registration_number'] as String? ?? '',
+      vehicleType:
+      json['vehicle_type'] as String? ?? '',
+      brand: json['brand'] as String? ?? '',
+      model: json['model'] as String? ?? '',
+      fuelType: json['fuel_type'] as String? ?? '',
+      seatingCapacity:
+      json['seating_capacity'] as int? ?? 0,
+      isAvailable:
+      json['is_available'] as bool? ?? true,
+    );
+  }
+}
+
+==================================================
+FILE: lib/services/admin_auth_service.dart
+==================================================
+import 'package:dio/dio.dart';
+
+import '../models/admin_auth_model.dart';
+import 'api_service.dart';
+
+class AdminAuthService {
+  ApiService apiService = ApiService();
+
+  Future<AdminAuthModel> authenticateAdmin(
+      String firebaseIdToken,
+      ) async {
+    Response<dynamic> response = await apiService.postRequest(
+      '/admin/login',
+      {
+        'firebase_token': firebaseIdToken,
+      },
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    Map<String, dynamic> adminData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return AdminAuthModel.fromJson(adminData);
+  }
+}
+
+==================================================
+FILE: lib/services/admin_registration_service.dart
+==================================================
+import 'package:dio/dio.dart';
+
+import '../models/admin_registration_model.dart';
+import 'api_service.dart';
+
+class AdminRegistrationService {
+  ApiService apiService = ApiService();
+
+  Future<void> registerAdmin(
+      AdminRegistrationModel adminRegistrationModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/admin/register',
+      adminRegistrationModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Admin registration failed',
+      );
+    }
+  }
+}
+
+==================================================
+FILE: lib/services/api_service.dart
+==================================================
+import 'package:dio/dio.dart';
+
+import '../configs/api_config.dart';
+
+class ApiService {
+  Dio dio;
+
+  ApiService()
+      : dio = Dio(
+    BaseOptions(
+      baseUrl: ApiConfig.baseUrl,
+      contentType: 'application/json',
+      responseType: ResponseType.json,
+    ),
+  );
+
+  Future<Response<dynamic>> postRequest(
+      String endpoint,
+      Map<String, dynamic> requestData,
+      ) async {
+    return dio.post(
+      endpoint,
+      data: requestData,
+    );
+  }
+}
+
+==================================================
+FILE: lib/services/driver_service.dart
+==================================================
+import 'package:dio/dio.dart';
+
+import '../models/driver_id_model.dart';
+import '../models/driver_model.dart';
+import 'api_service.dart';
+
+class DriverService {
+  ApiService apiService = ApiService();
+
+  Future<DriverModel> createDriver(
+      DriverModel driverModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/driver/create',
+      driverModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Driver creation failed',
+      );
+    }
+
+    Map<String, dynamic> driverData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return DriverModel.fromJson(driverData);
+  }
+
+  Future<List<DriverModel>> getAllDrivers() async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/driver/get_all',
+      {},
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Drivers retrieval failed',
+      );
+    }
+
+    List<dynamic> driverData =
+    responseData['data'] as List<dynamic>;
+
+    return driverData
+        .map(
+          (driver) => DriverModel.fromJson(
+        driver as Map<String, dynamic>,
+      ),
+    )
+        .toList();
+  }
+
+  Future<DriverModel> getDriver(
+      DriverIdModel driverIdModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/driver/get',
+      driverIdModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Driver retrieval failed',
+      );
+    }
+
+    Map<String, dynamic> driverData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return DriverModel.fromJson(driverData);
+  }
+
+  Future<DriverModel> updateDriver(
+      DriverModel driverModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/driver/update',
+      driverModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Driver update failed',
+      );
+    }
+
+    Map<String, dynamic> driverData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return DriverModel.fromJson(driverData);
+  }
+
+  Future<DriverModel> deleteDriver(
+      DriverIdModel driverIdModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/driver/delete',
+      driverIdModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Driver deletion failed',
+      );
+    }
+
+    Map<String, dynamic> driverData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return DriverModel.fromJson(driverData);
+  }
+}
+
+==================================================
+FILE: lib/services/google_auth_service.dart
+==================================================
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+class GoogleAuthService {
+  Future<void> initializeGoogleSignIn() async {
+    await GoogleSignIn.instance.initialize();
+  }
+
+  Future<String> signInWithGoogle() async {
+    GoogleSignInAccount googleAccount =
+    await GoogleSignIn.instance.authenticate();
+
+    GoogleSignInAuthentication googleAuthentication =
+        googleAccount.authentication;
+
+    String? idToken = googleAuthentication.idToken;
+
+    if (idToken == null) {
+      throw Exception('Google ID token was not received');
+    }
+
+    OAuthCredential googleCredential = GoogleAuthProvider.credential(
+      idToken: idToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(
+      googleCredential,
+    );
+
+    String? firebaseIdToken =
+    await FirebaseAuth.instance.currentUser?.getIdToken();
+
+    if (firebaseIdToken == null) {
+      throw Exception('Firebase ID token was not received');
+    }
+
+    return firebaseIdToken;
+  }
+
+  Future<void> signOutFromGoogle() async {
+    await GoogleSignIn.instance.signOut();
+    await FirebaseAuth.instance.signOut();
+  }
+}
+
+==================================================
+FILE: lib/services/vehicle_service.dart
+==================================================
+import 'package:dio/dio.dart';
+
+import '../models/vehicle_id_model.dart';
+import '../models/vehicle_model.dart';
+import 'api_service.dart';
+
+class VehicleService {
+  ApiService apiService = ApiService();
+
+  Future<VehicleModel> createVehicle(
+      VehicleModel vehicleModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/vehicle/create',
+      vehicleModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Vehicle creation failed',
+      );
+    }
+
+    Map<String, dynamic> vehicleData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return VehicleModel.fromJson(vehicleData);
+  }
+
+  Future<List<VehicleModel>> getAllVehicles() async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/vehicle/get_all',
+      {},
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Vehicles retrieval failed',
+      );
+    }
+
+    List<dynamic> vehicleData =
+    responseData['data'] as List<dynamic>;
+
+    return vehicleData
+        .map(
+          (vehicle) => VehicleModel.fromJson(
+        vehicle as Map<String, dynamic>,
+      ),
+    )
+        .toList();
+  }
+
+  Future<VehicleModel> getVehicle(
+      VehicleIdModel vehicleIdModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/vehicle/get',
+      vehicleIdModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Vehicle retrieval failed',
+      );
+    }
+
+    Map<String, dynamic> vehicleData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return VehicleModel.fromJson(vehicleData);
+  }
+
+  Future<VehicleModel> updateVehicle(
+      VehicleModel vehicleModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/vehicle/update',
+      vehicleModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Vehicle update failed',
+      );
+    }
+
+    Map<String, dynamic> vehicleData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return VehicleModel.fromJson(vehicleData);
+  }
+
+  Future<VehicleModel> deleteVehicle(
+      VehicleIdModel vehicleIdModel,
+      ) async {
+    Response<dynamic> response =
+    await apiService.postRequest(
+      '/vehicle/delete',
+      vehicleIdModel.toJson(),
+    );
+
+    Map<String, dynamic> responseData =
+    response.data as Map<String, dynamic>;
+
+    bool isSuccess =
+        responseData['success'] as bool? ?? false;
+
+    if (!isSuccess) {
+      throw Exception(
+        responseData['message'] ??
+            'Vehicle deletion failed',
+      );
+    }
+
+    Map<String, dynamic> vehicleData =
+    responseData['data'] as Map<String, dynamic>;
+
+    return VehicleModel.fromJson(vehicleData);
+  }
+}
+
+==================================================
+FILE: lib/controllers/admin_auth_controller.dart
+==================================================
+import '../models/admin_auth_model.dart';
+import '../services/admin_auth_service.dart';
+import '../services/google_auth_service.dart';
+
+class AdminAuthController {
+  GoogleAuthService googleAuthService = GoogleAuthService();
+  AdminAuthService adminAuthService = AdminAuthService();
+
+  Future<AdminAuthModel> authenticateAdmin() async {
+    String firebaseIdToken =
+    await googleAuthService.signInWithGoogle();
+
+    AdminAuthModel authenticatedAdmin =
+    await adminAuthService.authenticateAdmin(
+      firebaseIdToken,
+    );
+
+    return authenticatedAdmin;
+  }
+}
+
+==================================================
+FILE: lib/controllers/admin_registration_controller.dart
+==================================================
+import '../models/admin_registration_model.dart';
+import '../services/admin_registration_service.dart';
+
+class AdminRegistrationController {
+  AdminRegistrationService adminRegistrationService =
+  AdminRegistrationService();
+
+  Future<void> registerAdmin(
+      AdminRegistrationModel adminRegistrationModel,
+      ) async {
+    await adminRegistrationService.registerAdmin(
+      adminRegistrationModel,
+    );
+  }
+}
+
+==================================================
+FILE: lib/controllers/driver_controller.dart
+==================================================
+import '../models/driver_id_model.dart';
+import '../models/driver_model.dart';
+import '../services/driver_service.dart';
+
+class DriverController {
+  DriverService driverService = DriverService();
+
+  Future<DriverModel> createDriver(
+      DriverModel driverModel,
+      ) async {
+    DriverModel createdDriver =
+    await driverService.createDriver(
+      driverModel,
+    );
+
+    return createdDriver;
+  }
+
+  Future<List<DriverModel>> getAllDrivers() async {
+    List<DriverModel> driverList =
+    await driverService.getAllDrivers();
+
+    return driverList;
+  }
+
+  Future<DriverModel> getDriver(
+      DriverIdModel driverIdModel,
+      ) async {
+    DriverModel driver =
+    await driverService.getDriver(
+      driverIdModel,
+    );
+
+    return driver;
+  }
+
+  Future<DriverModel> updateDriver(
+      DriverModel driverModel,
+      ) async {
+    DriverModel updatedDriver =
+    await driverService.updateDriver(
+      driverModel,
+    );
+
+    return updatedDriver;
+  }
+
+  Future<DriverModel> deleteDriver(
+      DriverIdModel driverIdModel,
+      ) async {
+    DriverModel deletedDriver =
+    await driverService.deleteDriver(
+      driverIdModel,
+    );
+
+    return deletedDriver;
+  }
+}
+
+==================================================
+FILE: lib/controllers/vehicle_controller.dart
+==================================================
+import '../models/vehicle_id_model.dart';
+import '../models/vehicle_model.dart';
+import '../services/vehicle_service.dart';
+
+class VehicleController {
+  VehicleService vehicleService = VehicleService();
+
+  Future<VehicleModel> createVehicle(
+      VehicleModel vehicleModel,
+      ) async {
+    VehicleModel createdVehicle =
+    await vehicleService.createVehicle(
+      vehicleModel,
+    );
+
+    return createdVehicle;
+  }
+
+  Future<List<VehicleModel>> getAllVehicles() async {
+    List<VehicleModel> vehicleList =
+    await vehicleService.getAllVehicles();
+
+    return vehicleList;
+  }
+
+  Future<VehicleModel> getVehicle(
+      VehicleIdModel vehicleIdModel,
+      ) async {
+    VehicleModel vehicle =
+    await vehicleService.getVehicle(
+      vehicleIdModel,
+    );
+
+    return vehicle;
+  }
+
+  Future<VehicleModel> updateVehicle(
+      VehicleModel vehicleModel,
+      ) async {
+    VehicleModel updatedVehicle =
+    await vehicleService.updateVehicle(
+      vehicleModel,
+    );
+
+    return updatedVehicle;
+  }
+
+  Future<VehicleModel> deleteVehicle(
+      VehicleIdModel vehicleIdModel,
+      ) async {
+    VehicleModel deletedVehicle =
+    await vehicleService.deleteVehicle(
+      vehicleIdModel,
+    );
+
+    return deletedVehicle;
+  }
+}
+
+==================================================
+FILE: lib/configs/api_config.dart
+==================================================
+class ApiConfig {
+  static const String baseUrl = 'http://intern1.gpstrack.in:4002';
+}
+
+==================================================
+FILE: lib/widgets/admin_login/admin_registration_dialog.dart
+==================================================
+import 'package:flutter/material.dart';
+
+import '../../models/admin_registration_model.dart';
+
+class AdminRegistrationDialog extends StatefulWidget {
+  Future<void> Function(
+      AdminRegistrationModel adminRegistrationModel,
+      ) handleRegistration;
+
+  AdminRegistrationDialog({
+    super.key,
+    required this.handleRegistration,
+  });
+
+  @override
+  State<AdminRegistrationDialog> createState() =>
+      AdminRegistrationDialogState();
+}
+
+class AdminRegistrationDialogState
+    extends State<AdminRegistrationDialog> {
+  TextEditingController nameController =
+  TextEditingController();
+
+  TextEditingController emailController =
+  TextEditingController();
+
+  TextEditingController masterPasswordController =
+  TextEditingController();
+
+  bool isRegistering = false;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    masterPasswordController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> submitRegistration() async {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String masterPassword =
+        masterPasswordController.text;
+
+    if (name.isEmpty ||
+        email.isEmpty ||
+        masterPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All fields are required'),
+        ),
+      );
+      return;
+    }
+
+    AdminRegistrationModel adminRegistrationModel =
+    AdminRegistrationModel(
+      name: name,
+      email: email,
+      masterPassword: masterPassword,
+    );
+
+    setState(() {
+      isRegistering = true;
+    });
+
+    try {
+      await widget.handleRegistration(
+        adminRegistrationModel,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Admin registered successfully',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isRegistering = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Admin registration failed',
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget buildNameField() {
+    return TextField(
+      controller: nameController,
+      decoration: const InputDecoration(
+        labelText: 'Name',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget buildEmailField() {
+    return TextField(
+      controller: emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: const InputDecoration(
+        labelText: 'Email',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget buildMasterPasswordField() {
+    return TextField(
+      controller: masterPasswordController,
+      obscureText: true,
+      decoration: const InputDecoration(
+        labelText: 'Master Password',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget buildForm() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildNameField(),
+          const SizedBox(height: 16),
+          buildEmailField(),
+          const SizedBox(height: 16),
+          buildMasterPasswordField(),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> buildDialogActions() {
+    return [
+      TextButton(
+        onPressed: isRegistering
+            ? null
+            : () {
+          Navigator.pop(context);
+        },
+        child: const Text('Cancel'),
+      ),
+      ElevatedButton(
+        onPressed:
+        isRegistering ? null : submitRegistration,
+        child: isRegistering
+            ? const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(),
+        )
+            : const Text('Register'),
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Register Admin'),
+      content: buildForm(),
+      actions: buildDialogActions(),
+    );
+  }
+}
+
+==================================================
+FILE: lib/widgets/create_new_driver/driver_qr_dialog.dart
+==================================================
+import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+import '../../models/driver_model.dart';
+
+class DriverQrDialog extends StatelessWidget {
+  DriverModel driver;
+  Future<void> Function(String) shareDriverQr;
+  Future<void> Function(String) saveDriverQr;
+
+  DriverQrDialog({
+    super.key,
+    required this.driver,
+    required this.shareDriverQr,
+    required this.saveDriverQr,
+  });
+
+  Widget buildDriverId() {
+    return Column(
+      children: [
+        const Text(
+          'Driver ID',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 6),
+        SelectableText(
+          driver.driverId,
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget buildQrCode() {
+    return SizedBox(
+      width: 180,
+      height: 180,
+      child: QrImageView(
+        data: driver.driverId,
+        version: QrVersions.auto,
+        size: 180,
+        gapless: true,
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget buildDialogContent() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        buildDriverId(),
+        const SizedBox(height: 12),
+        buildQrCode(),
+        const SizedBox(height: 8),
+        const Text(
+          'Scan this QR code to identify the driver.',
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  List<Widget> buildDialogActions(
+      BuildContext context) {
+    return [
+      TextButton.icon(
+        onPressed: () async {
+          await shareDriverQr(
+            driver.driverId,
+          );
+        },
+        icon: const Icon(Icons.share),
+        label: const Text('Share'),
+      ),
+      TextButton.icon(
+        onPressed: () async {
+          await saveDriverQr(
+            driver.driverId,
+          );
+        },
+        icon: const Icon(Icons.print),
+        label: const Text('Print'),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: const Text('Done'),
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(
+        'Driver Created Successfully',
+      ),
+      content: buildDialogContent(),
+      actions: buildDialogActions(context),
+    );
+  }
+}
+
+==================================================
+FILE: lib/screens/create_new_driver_screen.dart
+==================================================
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../controllers/driver_controller.dart';
+import '../models/driver_model.dart';
+import '../widgets/create_new_driver/driver_availability.dart';
+import '../widgets/create_new_driver/driver_basic_detail.dart';
+import '../widgets/create_new_driver/driver_license_detail.dart';
+import '../widgets/create_new_driver/driver_personal_detail.dart';
+import '../widgets/create_new_driver/driver_qr_dialog.dart';
+import '../widgets/create_new_driver/driver_register_button.dart';
+
+class CreateNewDriverScreen extends StatefulWidget {
+  const CreateNewDriverScreen({super.key});
+
+  @override
+  State<CreateNewDriverScreen> createState() =>
+      _CreateNewDriverScreenState();
+}
+
+class _CreateNewDriverScreenState
+    extends State<CreateNewDriverScreen> {
+  DriverController driverController =
+  DriverController();
+
+  GlobalKey<FormState> formKey =
+  GlobalKey<FormState>();
+
+  TextEditingController nameController =
+  TextEditingController();
+
+  TextEditingController mobileNumberController =
+  TextEditingController();
+
+  TextEditingController emailController =
+  TextEditingController();
+
+  TextEditingController addressController =
+  TextEditingController();
+
+  TextEditingController licenseNumberController =
+  TextEditingController();
+
+  DateTime? selectedDateOfBirth;
+  DateTime? selectedLicenseExpiryDate;
+
+  String? selectedGender;
+
+  bool isAvailable = true;
+  bool isRegistering = false;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    mobileNumberController.dispose();
+    emailController.dispose();
+    addressController.dispose();
+    licenseNumberController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> selectDateOfBirth() async {
+    DateTime? selectedDate =
+    await showDatePicker(
+      context: context,
+      initialDate: DateTime(
+        DateTime.now().year - 25,
+        DateTime.now().month,
+        DateTime.now().day,
+      ),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+
+    if (selectedDate == null) {
+      return;
+    }
+
+    setState(() {
+      selectedDateOfBirth = selectedDate;
+    });
+  }
+
+  Future<void> selectLicenseExpiryDate() async {
+    DateTime? selectedDate =
+    await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (selectedDate == null) {
+      return;
+    }
+
+    setState(() {
+      selectedLicenseExpiryDate = selectedDate;
+    });
+  }
+
+  Future<void> registerDriver() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (selectedLicenseExpiryDate == null) {
+      showMessage(
+        'Please select license expiry date',
+      );
+      return;
+    }
+
+    setState(() {
+      isRegistering = true;
+    });
+
+    try {
+      DriverModel driverModel =
+      DriverModel(
+        name: nameController.text.trim(),
+        mobileNumber:
+        mobileNumberController.text.trim(),
+        email: emailController.text.trim(),
+        dateOfBirth: selectedDateOfBirth,
+        gender: selectedGender,
+        address: addressController.text.trim(),
+        licenseNumber:
+        licenseNumberController.text.trim(),
+        licenseExpiryDate:
+        selectedLicenseExpiryDate!,
+        isAvailable: isAvailable,
+      );
+
+      DriverModel createdDriver =
+      await driverController.createDriver(
+        driverModel,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isRegistering = false;
+      });
+
+      await showDriverQrDialog(
+        createdDriver,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pop(context);
+
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isRegistering = false;
+      });
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  Future<Uint8List?> generateQrImage(
+      String driverId) async {
+    QrPainter qrPainter = QrPainter(
+      data: driverId,
+      version: QrVersions.auto,
+      gapless: true,
+      emptyColor: Colors.white,
+    );
+
+    ByteData? imageData =
+    await qrPainter.toImageData(
+      1000,
+      format: ui.ImageByteFormat.png,
+    );
+
+    return imageData?.buffer.asUint8List();
+  }
+
+  Future<void> shareDriverQr(
+      String driverId) async {
+    Uint8List? qrBytes =
+    await generateQrImage(driverId);
+
+    if (qrBytes == null) {
+      return;
+    }
+
+    Directory directory =
+    await getTemporaryDirectory();
+
+    File qrFile = File(
+      '${directory.path}/$driverId.png',
+    );
+
+    await qrFile.writeAsBytes(qrBytes);
+
+    await Share.shareXFiles(
+      [
+        XFile(
+          qrFile.path,
+          mimeType: 'image/png',
+        ),
+      ],
+      text: 'Driver QR Code - $driverId',
+    );
+  }
+
+  Future<void> saveDriverQr(
+      String driverId) async {
+    Uint8List? qrBytes =
+    await generateQrImage(driverId);
+
+    if (qrBytes == null) {
+      return;
+    }
+
+    Directory directory =
+    await getApplicationDocumentsDirectory();
+
+    File qrFile = File(
+      '${directory.path}/$driverId.png',
+    );
+
+    await qrFile.writeAsBytes(qrBytes);
+
+    if (!mounted) {
+      return;
+    }
+
+    showMessage(
+      'QR code saved successfully',
+    );
+  }
+
+  Future<void> showDriverQrDialog(
+      DriverModel driver) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return DriverQrDialog(
+          driver: driver,
+          shareDriverQr: shareDriverQr,
+          saveDriverQr: saveDriverQr,
+        );
+      },
+    );
+  }
+
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+  }
+
+  Widget buildDriverDetails() {
+    return Column(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Driver Details',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 24),
+        DriverBasicDetail(
+          nameController: nameController,
+          mobileNumberController:
+          mobileNumberController,
+          emailController: emailController,
+        ),
+        const SizedBox(height: 16),
+        DriverPersonalDetail(
+          addressController: addressController,
+          selectedDateOfBirth:
+          selectedDateOfBirth,
+          selectedGender: selectedGender,
+          selectDateOfBirth:
+          selectDateOfBirth,
+          selectGender: (value) {
+            setState(() {
+              selectedGender = value;
+            });
+          },
+          formatDate: formatDate,
+        ),
+      ],
+    );
+  }
+
+  Widget buildLicenseDetails() {
+    return Column(
+      crossAxisAlignment:
+      CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'License Details',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        DriverLicenseDetail(
+          licenseNumberController:
+          licenseNumberController,
+          selectedLicenseExpiryDate:
+          selectedLicenseExpiryDate,
+          selectLicenseExpiryDate:
+          selectLicenseExpiryDate,
+          formatDate: formatDate,
+        ),
+      ],
+    );
+  }
+
+  Widget buildAvailability() {
+    return DriverAvailability(
+      isAvailable: isAvailable,
+      onChanged: (value) {
+        setState(() {
+          isAvailable = value;
+        });
+      },
+    );
+  }
+
+  Widget buildRegisterButton() {
+    return DriverRegisterButton(
+      isRegistering: isRegistering,
+      onPressed: registerDriver,
+    );
+  }
+
+  Widget buildForm() {
+    return Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          buildDriverDetails(),
+          const SizedBox(height: 24),
+          buildLicenseDetails(),
+          const SizedBox(height: 16),
+          buildAvailability(),
+          const SizedBox(height: 32),
+          buildRegisterButton(),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Create New Driver',
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: buildForm(),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE: lib/screens/manage_drivers_screen.dart
+==================================================
+import 'package:flutter/material.dart';
+
+import '../controllers/driver_controller.dart';
+import '../models/driver_id_model.dart';
+import '../models/driver_model.dart';
+import '../widgets/manage_drivers/driver_card.dart';
+import '../widgets/manage_drivers/driver_edit_dialog.dart';
+import '../widgets/manage_drivers/no_drivers_view.dart';
+import 'create_new_driver_screen.dart';
+
+class ManageDriversScreen extends StatefulWidget {
+  const ManageDriversScreen({super.key});
+
+  @override
+  State<ManageDriversScreen> createState() =>
+      _ManageDriversScreenState();
+}
+
+class _ManageDriversScreenState
+    extends State<ManageDriversScreen> {
+  DriverController driverController =
+  DriverController();
+
+  List<DriverModel> driverList = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadDrivers();
+  }
+
+  Future<void> loadDrivers() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<DriverModel> loadedDriverList =
+      await driverController.getAllDrivers();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        driverList = loadedDriverList;
+        isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  Future<void> openCreateDriverScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+        const CreateNewDriverScreen(),
+      ),
+    );
+
+    await loadDrivers();
+  }
+
+  Future<void> showDeleteDriverDialog(
+      DriverModel driver) async {
+    bool? shouldDelete =
+    await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete Driver',
+          ),
+          content: Text(
+            'Are you sure you want to delete '
+                '${driver.name}?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  false,
+                );
+              },
+              child: const Text(
+                'Cancel',
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  true,
+                );
+              },
+              child: const Text(
+                'Delete',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    await deleteDriver(driver);
+  }
+
+  Future<void> deleteDriver(
+      DriverModel driver) async {
+    try {
+      await driverController.deleteDriver(
+        DriverIdModel(
+          driverId: driver.driverId,
+        ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      showMessage(
+        'Driver deleted successfully',
+      );
+
+      await loadDrivers();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  Future<void> showEditDriverDialog(
+      DriverModel driver) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DriverEditDialog(
+          driver: driver,
+          formatDate: formatDate,
+          onUpdate: updateDriver,
+        );
+      },
+    );
+  }
+
+  Future<void> updateDriver(
+      DriverModel driver) async {
+    await driverController.updateDriver(
+      driver,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    showMessage(
+      'Driver updated successfully',
+    );
+
+    await loadDrivers();
+  }
+
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+  }
+
+  Widget buildAddDriverButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: openCreateDriverScreen,
+        icon: const Icon(Icons.add),
+        label: const Text('Add New Driver'),
+      ),
+    );
+  }
+
+  Widget buildDriverList() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        buildAddDriverButton(),
+        const SizedBox(height: 16),
+        ...driverList.map(
+              (driver) => DriverCard(
+            driver: driver,
+            onEdit: () {
+              showEditDriverDialog(driver);
+            },
+            onDelete: () {
+              showDeleteDriverDialog(driver);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (driverList.isEmpty) {
+      return NoDriversView(
+        onAddDriver: openCreateDriverScreen,
+      );
+    }
+
+    return buildDriverList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Manage Drivers',
+        ),
+      ),
+      body: RefreshIndicator(
+        onRefresh: loadDrivers,
+        child: buildBody(),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE: lib/screens/create_new_vehicle_screen.dart
+==================================================
+import 'package:flutter/material.dart';
+
+import '../controllers/vehicle_controller.dart';
+import '../models/vehicle_model.dart';
+import '../widgets/create_new_vehicle/vehicle_availability.dart';
+import '../widgets/create_new_vehicle/vehicle_basic_detail.dart';
+import '../widgets/create_new_vehicle/vehicle_register_button.dart';
+
+class CreateNewVehicleScreen extends StatefulWidget {
+  const CreateNewVehicleScreen({super.key});
+
+  @override
+  State<CreateNewVehicleScreen> createState() =>
+      _CreateNewVehicleScreenState();
+}
+
+class _CreateNewVehicleScreenState
+    extends State<CreateNewVehicleScreen> {
+  VehicleController vehicleController =
+  VehicleController();
+
+  GlobalKey<FormState> formKey =
+  GlobalKey<FormState>();
+
+  TextEditingController registrationNumberController =
+  TextEditingController();
+
+  TextEditingController vehicleTypeController =
+  TextEditingController();
+
+  TextEditingController brandController =
+  TextEditingController();
+
+  TextEditingController modelController =
+  TextEditingController();
+
+  TextEditingController fuelTypeController =
+  TextEditingController();
+
+  TextEditingController seatingCapacityController =
+  TextEditingController();
+
+  bool isAvailable = true;
+  bool isRegistering = false;
+
+  @override
+  void dispose() {
+    registrationNumberController.dispose();
+    vehicleTypeController.dispose();
+    brandController.dispose();
+    modelController.dispose();
+    fuelTypeController.dispose();
+    seatingCapacityController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> registerVehicle() async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    int? seatingCapacity =
+    int.tryParse(seatingCapacityController.text.trim());
+
+    if (seatingCapacity == null || seatingCapacity < 1) {
+      showMessage(
+        'Please enter a valid seating capacity',
+      );
+      return;
+    }
+
+    setState(() {
+      isRegistering = true;
+    });
+
+    try {
+      VehicleModel vehicleModel = VehicleModel(
+        registrationNumber:
+        registrationNumberController.text.trim(),
+        vehicleType: vehicleTypeController.text.trim(),
+        brand: brandController.text.trim(),
+        model: modelController.text.trim(),
+        fuelType: fuelTypeController.text.trim(),
+        seatingCapacity: seatingCapacity,
+        isAvailable: isAvailable,
+      );
+
+      await vehicleController.createVehicle(
+        vehicleModel,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pop(context);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isRegistering = false;
+      });
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  Widget buildVehicleDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Vehicle Details',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 24),
+        VehicleBasicDetail(
+          registrationNumberController:
+          registrationNumberController,
+          vehicleTypeController: vehicleTypeController,
+          brandController: brandController,
+          modelController: modelController,
+          fuelTypeController: fuelTypeController,
+          seatingCapacityController:
+          seatingCapacityController,
+        ),
+      ],
+    );
+  }
+
+  Widget buildAvailability() {
+    return VehicleAvailability(
+      isAvailable: isAvailable,
+      onChanged: (value) {
+        setState(() {
+          isAvailable = value;
+        });
+      },
+    );
+  }
+
+  Widget buildRegisterButton() {
+    return VehicleRegisterButton(
+      isRegistering: isRegistering,
+      onPressed: registerVehicle,
+    );
+  }
+
+  Widget buildForm() {
+    return Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildVehicleDetails(),
+          const SizedBox(height: 16),
+          buildAvailability(),
+          const SizedBox(height: 32),
+          buildRegisterButton(),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Create New Vehicle',
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: buildForm(),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE: lib/screens/manage_vehicles_screen.dart
+==================================================
+import 'package:flutter/material.dart';
+import '../widgets/manage_vehicles/vehicle_edit_dialog.dart';
+import '../controllers/vehicle_controller.dart';
+import '../models/vehicle_id_model.dart';
+import '../models/vehicle_model.dart';
+import '../widgets/manage_vehicles/vehicle_card.dart';
+import '../widgets/manage_vehicles/no_vehicles_view.dart';
+import 'create_new_vehicle_screen.dart';
+
+class ManageVehiclesScreen extends StatefulWidget {
+  const ManageVehiclesScreen({super.key});
+
+  @override
+  State<ManageVehiclesScreen> createState() =>
+      _ManageVehiclesScreenState();
+}
+
+class _ManageVehiclesScreenState
+    extends State<ManageVehiclesScreen> {
+  VehicleController vehicleController =
+  VehicleController();
+
+  List<VehicleModel> vehicleList = [];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadVehicles();
+  }
+  Future<void> showEditVehicleDialog(
+      VehicleModel vehicle) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return VehicleEditDialog(
+          vehicle: vehicle,
+          onUpdate: updateVehicle,
+        );
+      },
+    );
+  }
+
+  Future<void> updateVehicle(
+      VehicleModel vehicle) async {
+    await vehicleController.updateVehicle(
+      vehicle,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    showMessage('Vehicle updated successfully');
+
+    await loadVehicles();
+  }
+
+  Future<void> loadVehicles() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      List<VehicleModel> loadedVehicleList =
+      await vehicleController.getAllVehicles();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        vehicleList = loadedVehicleList;
+        isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  Future<void> openCreateVehicleScreen() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+        const CreateNewVehicleScreen(),
+      ),
+    );
+
+    await loadVehicles();
+  }
+
+  Future<void> showDeleteVehicleDialog(
+      VehicleModel vehicle) async {
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Vehicle'),
+          content: Text(
+            'Are you sure you want to delete '
+                '${vehicle.registrationNumber}?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    await deleteVehicle(vehicle);
+  }
+
+  Future<void> deleteVehicle(
+      VehicleModel vehicle) async {
+    try {
+      await vehicleController.deleteVehicle(
+        VehicleIdModel(
+          vehicleId: vehicle.vehicleId,
+        ),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      showMessage('Vehicle deleted successfully');
+
+      await loadVehicles();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      showMessage(
+        error.toString().replaceFirst(
+          'Exception: ',
+          '',
+        ),
+      );
+    }
+  }
+
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  Widget buildAddVehicleButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: openCreateVehicleScreen,
+        icon: const Icon(Icons.add),
+        label: const Text('Add New Vehicle'),
+      ),
+    );
+  }
+
+  Widget buildVehicleList() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        buildAddVehicleButton(),
+        const SizedBox(height: 16),
+        ...vehicleList.map(
+              (vehicle) => VehicleCard(
+            vehicle: vehicle,
+    onEdit: () {
+    showEditVehicleDialog(vehicle);
+    },
+            onDelete: () {
+              showDeleteVehicleDialog(vehicle);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildBody() {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (vehicleList.isEmpty) {
+      return NoVehiclesView(
+        onAddVehicle: openCreateVehicleScreen,
+      );
+    }
+
+    return buildVehicleList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Manage Vehicles'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: loadVehicles,
+        child: buildBody(),
+      ),
+    );
+  }
+}

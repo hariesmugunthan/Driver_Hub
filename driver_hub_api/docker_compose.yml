@@ -1,0 +1,28 @@
+services:
+  api:
+    image: mugunthan_driver_hub_api:latest
+    container_name: mugunthan_driver_hub_api_container
+    build: .
+    ports:
+      - "4002:3000"
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/driver_hub
+      MASTER_ADMIN_PASSWORD: ${MASTER_ADMIN_PASSWORD}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+      GOOGLE_ROUTES_API_KEY: ${GOOGLE_ROUTES_API_KEY}
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mugunthan_driver_hub_mongodb_container
+    ports:
+      - "4003:27017"
+    volumes:
+      - driver_hub_mongo_data:/data/db
+
+volumes:
+  driver_hub_mongo_data:
